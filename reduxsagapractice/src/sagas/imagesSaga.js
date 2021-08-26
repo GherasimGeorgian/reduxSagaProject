@@ -1,14 +1,18 @@
-import { put, call, takeEvery } from 'redux-saga/effects';
+import { put, call, takeEvery, select } from 'redux-saga/effects';
 
+import { loadImagesSuccess, loadImagesFail } from '../actions';
 import { IMAGES } from '../constants';
 import fetchImages from '../api';
 
+const getPage = state => state.nextPage;
+
 function* handleImagesLoad() {
     try {
-        const images = yield call(fetchImages);
-        yield put({ type: IMAGES.LOAD_SUCCESS, images });
+        const page = yield select(getPage);
+        const images = yield call(fetchImages, page);
+        yield put(loadImagesSuccess(images));
     } catch (error) {
-        yield put({ type: IMAGES.LOAD_FAIL, error });
+        yield put(loadImagesFail(error.toString()));
     }
 }
 
